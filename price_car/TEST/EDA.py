@@ -4,11 +4,12 @@ import pandas as pd
 import io
 import base64 
 import os
-
+import base64
+from io import BytesIO
 
 def matrice_correlation():
     base_dir=os.path.dirname(os.path.abspath(__file__))
-    data_path=os.path.join(base_dir,"data", "train_clean.csv")
+    data_path = os.path.join(os.path.dirname(__file__), "..", "data", "train_clean.csv")
     df=pd.read_csv(data_path)
     df["Fuel_Type"]=pd.factorize(df["Fuel_Type"])[0]
     df["Transmission"]=pd.factorize(df["Transmission"])[0]
@@ -29,14 +30,11 @@ def matrice_correlation():
 import matplotlib
 matplotlib.use("Agg")
 
-import matplotlib.pyplot as plt
-import pandas as pd
-import base64
-from io import BytesIO
+
 
 def prix_annee():
     base_dir=os.path.dirname(os.path.abspath(__file__))
-    data_path=os.path.join(base_dir,"data", "train_clean.csv")
+    data_path = os.path.join(os.path.dirname(__file__), "..", "data", "train_clean.csv")
     df=pd.read_csv(data_path)
 
     # Calcul du prix moyen par année
