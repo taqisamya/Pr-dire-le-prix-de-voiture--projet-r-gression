@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+
+<body>
+
+<div id="background"></div>	
+
+<div id="login">
+  <div class="user-login">
+
+    <div class="back">
+      <a href="{{ url_for('login') }}"><i class="fa fa-arrow-left"></i></a>
+    </div>
+
+    <!-- Messages Flash -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for message in messages %}
+            <p class="flash-error">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('register') }}">
+      <table>
+        <tr>
+          <td><h1 id="register-h1">Register</h1></td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="text" name="fullname" class="text_2" placeholder="Full Name" required>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="email" name="email" class="text_2" placeholder="Email" required>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="text" name="username" class="text_2 textin" placeholder="Username" required>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="password" name="password" id="password" placeholder="Password" class="text_2" required>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" class="text_2" required>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <button type="submit" class="register-button2">Register</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="text-align:center; padding-top:10px;">
+            Déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a>
+          </td>
+        </tr>
+      </table>
+    </form>
+
+  </div>
+</div>
+
+<script>
+// 🔒 Vérification côté client pour mot de passe
+document.querySelector("form").addEventListener("submit", function(e){
+    const pass = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm_password").value;
+
+    if(pass !== confirm){
+        alert("Les mots de passe ne correspondent pas !");
+        e.preventDefault();
+    }
+});
+</script>
+
+</body>
+</html>
+
+

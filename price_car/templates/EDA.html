@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard EDA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="eda-container">
+
+    <!-- 🔝 Barre utilisateur -->
+    <div class="top-bar">
+        <span>Connecté : <strong>{{ session['user'] }}</strong></span>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Déconnexion</a>
+    </div>
+
+    <h1>Analyse Exploratoire des Données</h1>
+
+    <!-- 📊 MATRICE DE CORRÉLATION -->
+    <div class="graph-box">
+        <h2>Matrice de corrélation</h2>
+        <img src="data:image/png;base64,{{ corr_img }}" 
+             alt="Matrice de corrélation">
+
+        <h2>Evolution du prix en fonction l'année</h2>
+        <img src="data:image/png;base64,{{ graph_prix }}"
+            alt="graphe évolution de prix par ans">
+
+    </div>
+
+</div>
+
+</body>
+</html>
+

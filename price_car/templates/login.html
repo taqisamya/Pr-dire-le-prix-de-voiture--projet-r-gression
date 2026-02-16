@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+
+<body>
+
+<div id="background"></div>	
+
+<div id="login">
+    <div class="user-login">
+
+        <!--  Messages Flash -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for message in messages %}
+                <p class="flash-error">{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+        <table>
+            <tr><td><h1>Se connecter</h1></td></tr>
+
+            <tr>
+                <td>
+                    <input type="text" name="username" 
+                           class="text textin" 
+                           placeholder="Username" required>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <div class="inputGroup">
+                        <input type="password" 
+                               name="password" 
+                               class="text paddingRight30" 
+                               id="password" 
+                               placeholder="Password" required>
+                        <i class="fas fa-eye" onclick="showHidePass();"></i>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <a href="{{ url_for('forgot_password') }}" id="pas-2">
+                        <p id="pas">Mot de passe oublié</p>
+                    </a>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <button type="submit" class="login-button">Login</button>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="text-align:center; padding-top:10px;">
+                    Pas encore de compte ?
+                    <a href="{{ url_for('register') }}">S'inscrire</a>
+                </td>
+            </tr>
+        </table>
+        </form>
+
+    </div>
+</div>
+
+<script>
+function showHidePass() {
+    var element = document.getElementById('password');
+    element.type = (element.type === 'password') ? 'text' : 'password';
+}
+</script>
+
+</body>
+</html>

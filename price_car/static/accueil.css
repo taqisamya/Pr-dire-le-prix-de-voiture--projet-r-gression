@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9faf2;
+    text-align: center;
+}
+
+.container {
+    margin-top: 30px;
+}
+
+.card {
+    background: rgb(239, 247, 246);
+    width: 50%;
+    margin-bottom: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.card1 {
+    background: rgb(190, 219, 189);
+    width: 50%;
+    margin-bottom: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+.card2 {
+    background: rgb(231, 201, 224);
+    width: 50%;
+    margin-bottom: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+
+.nopoints {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+.flash-top-left {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+}
