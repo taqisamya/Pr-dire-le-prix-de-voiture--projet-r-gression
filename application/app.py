@@ -24,7 +24,7 @@ def load_user(user_id):
     return User(user_id) if user_id in users else None
 
 # Chargement du modèle IA
-model_ia = joblib.load('modele_test.pkl')
+model_ia = joblib.load('modele_svr.pkl')
 
 # --- ROUTES ---
 
@@ -46,6 +46,12 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+# @app.route('/statistics')
+# @login_required
+# def logout():
+#     logout_user()
+#     return redirect(url_for('statistics.html'))
 
 @app.route('/')
 @login_required
@@ -72,7 +78,7 @@ def predict():
     
     prediction = model_ia.predict(df_input[['Location','Year','Kilometers_Driven', 'Fuel_Type', 'Transmission', 'Owner_Type', 'Mileage','Power', 'Model', 'Brand']])[0]
     
-    return render_template('index.html', prediction=round(prediction, 2))
+    return render_template('index.html', prediction=round(prediction, 2)*929)
 
 if __name__ == '__main__':
     app.run(debug=True)
