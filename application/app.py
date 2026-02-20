@@ -1,78 +1,177 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
-import joblib
-import pandas as pd
+import streamlit as st
+import requests
+import pandas as pd 
+import plotly.express as px 
+import sqlite3
 
-app = Flask(__name__)
-app.secret_key = 'supersecretkey' # Nécessaire pour les sessions
+df = pd.read_csv("data\\train_clean.csv")
 
-# Configuration Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
+st.set_page_config(page_title="MMS Occasions", layout="centered", page_icon="🚗")
 
-# Modèle Utilisateur simple
-class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
+def check_login(username, password):
+    """Vérifie si le couple user/password existe en base de données."""
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        
+        query = "SELECT * FROM profils WHERE user = ? AND password = ?"
+        cursor.execute(query, (username, password))
+        result = cursor.fetchone()
+        
+        conn.close()
+        return result is not None 
+    except sqlite3.Error as e:
+        st.error(f"Erreur de base de données : {e}")
+        return False
 
-# Utilisateur fictif pour l'exemple
-users = {'admin': {'password': '123'}}
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User(user_id) if user_id in users else None
-
-# Chargement du modèle IA
-model_ia = joblib.load('modele_test.pkl')
-
-# --- ROUTES ---
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if username in users and users[username]['password'] == password:
-            user = User(username)
-            login_user(user)
-            return redirect(url_for('index'))
-        else:
-            flash('Identifiants invalides')
-    return render_template('login.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
-
-@app.route('/')
-@login_required
-def index():
-    return render_template('index.html')
-
-@app.route('/predict', methods=['POST'])
-@login_required
-def predict():
-    # ... (Garder le même code de prédiction que précédemment)
-    data = {
-        'Location': request.form['location'],
-        'Year': int(request.form['year']),
-        'Kilometers_Driven': float(request.form['km']),
-        'Fuel_Type': request.form['fuel'],
-        'Transmission': request.form['transmission'],
-        'Owner_Type': request.form['owner'],
-        'Mileage': float(request.form['mileage']),
-        'Power': float(request.form['power']),
-        'Model': request.form['model'].upper(),
-        'Brand': request.form['brand'].upper()
-    }
-    df_input = pd.DataFrame([data])
+def login_page():
+    st.title("🔐 Connexion")
     
-    prediction = model_ia.predict(df_input[['Location','Year','Kilometers_Driven', 'Fuel_Type', 'Transmission', 'Owner_Type', 'Mileage','Power', 'Model', 'Brand']])[0]
-    
-    return render_template('index.html', prediction=round(prediction, 2))
+    with st.form("login_form"):
+        username = st.text_input("Nom d'utilisateur")
+        password = st.text_input("Mot de passe", type="password")
+        submit = st.form_submit_button("Se connecter")
+        
+        if submit:
+            if check_login(username, password):
+                st.session_state.logged_in = True
+                st.success("Connexion réussie !")
+                st.rerun()
+            else:
+                st.error("Utilisateur ou mot de passe incorrect.")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "show_login" not in st.session_state:
+    st.session_state.show_login = False
+
+if not st.session_state.logged_in:
+    if not st.session_state.show_login:
+        # --- PAGE D'ACCUEIL ---
+        st.title("🚗 Bienvenue chez MMS Occasions")
+        st.write("L'outil expert pour estimer la valeur de votre véhicule d'occasion en quelques secondes.")
+        
+        col1, col2 = st.columns([1, 5])
+        with col1:
+            if st.button("Se connecter", type="primary"):
+                st.session_state.show_login = True
+                st.rerun()
+        
+        st.divider()
+        st.info("💡 Connectez-vous pour accéder aux prédictions IA et aux statistiques du marché.")
+    else:
+        # --- PAGE DE LOGIN ---
+        login_page()
+        if st.button("⬅️ Retour"):
+            st.session_state.show_login = False
+            st.rerun()
+
+else:
+    # --- APPLICATION APRÈS CONNEXION ---
+    st.sidebar.success(f"Connecté en tant que membre")
+    if st.sidebar.button("Se déconnecter"):
+        st.session_state.logged_in = False
+        st.session_state.show_login = False 
+        st.rerun()
+
+    tab1, tab2 = st.tabs(["🎯 Prédiction", "📈 Statistiques"])
+
+    with tab1:
+        st.title("🚗 MMS Occasions")
+        st.write("Obtenez une estimation par IA en un clic.")
+
+        marques_disponibles = sorted(df['Brand'].unique().tolist())
+
+        st.subheader("Configuration du véhicule")
+
+        col_a, col_b = st.columns(2)
+
+        with col_a:
+            brand = st.selectbox("Marque", options=marques_disponibles)
+
+        modeles_filtres = sorted(df[df['Brand'] == brand]['Model'].unique().tolist())
+
+        with col_b:
+            model_car = st.selectbox("Modèle", options=modeles_filtres)
+
+        with st.form("prediction_form"):
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                location = st.selectbox("Ville", ["Mumbai", "Hyderabad", "Kochi", "Coimbatore", "Delhi", "Kolkata", "Chennai", "Jaipur", "Bangalore", "Ahmedabad"])
+                fuel = st.selectbox("Carburant", ["Essence", "Diesel", "CNG", "LPG"])
+                if fuel == "Essence":
+                    fuel = "Petrol"
+                
+            with col2:
+                year = st.number_input("Année", min_value=1998, max_value=2019, value=2010)
+                transmission = st.selectbox("Boîte", ["Manuelle", "Automatique"])
+                if transmission == "Manuelle":
+                    transmission = "Manual"
+                elif transmission == "Automatique":
+                    transmission = "Automatic"
+                
+            with col3:
+                km = st.number_input("Kilométrage", min_value=0, value=50000)
+                power = st.number_input("Puissance (bhp)", min_value=0.0, value=75.0)
+
+            mileage = st.number_input("Consommation (en kmpl)", min_value=0.0, value=20.0)
+            owner = st.selectbox("Propriétaire", ["Première main", "Seconde main", "Troisième main", "Quatrième main ou plus"])
+            if owner == "Première main":
+                owner = "First"
+            elif owner =="Seconde main":
+                owner = "Second"
+            elif owner == "Troisième main":
+                owner = "Third"
+            elif owner == "Quatrième main ou plus":
+                owner = "Fourth & Above"
+           
+            submit = st.form_submit_button("Estimer le prix")
+
+        if submit:
+            payload = {
+                "Location": location, "Year": int(year), "Kilometers_Driven": int(km),
+                "Fuel_Type": fuel, "Transmission": transmission, "Owner_Type": owner,
+                "Mileage": float(mileage), "Power": float(power), 
+                "Model": model_car.upper(), "Brand": brand.upper()
+            }
+            try:
+                with st.spinner('Analyse IA...'):
+                    response = requests.post("http://127.0.0.1:8000/predict", json=payload)
+                    prediction = response.json().get('predicted_price')
+                    st.success(f"### 💰 Prix estimé : {round(prediction * 929, 2)} €")
+            except Exception as e:
+                st.error("L'API FastAPI est éteinte (port 8000).")
+
+    with tab2:
+        st.title("📈 Analyse du Marché")
+        
+        try:
+            data = pd.read_csv('data\\train_clean.csv')
+
+            marques = st.multiselect("Filtrer par marque", options=data['Brand'].unique(), placeholder="Choisir une (ou plusieurs) marque(s)")
+            df_filtre = data[data['Brand'].isin(marques)]
+
+            st.subheader("Distribution des Prix par Type de Carburant")
+
+            fig = px.histogram(
+                df_filtre, 
+                x="Fuel_Type", 
+                y="Price", 
+                color="Fuel_Type",
+                histfunc="avg", 
+                template="plotly_dark",
+                barmode="group",
+                labels={"Fuel_Type": "Type de Carburant", "Price": "Prix Moyen (en €)"}
+            )
+            fig.update_layout(bargap=0.2)
+            st.plotly_chart(fig, use_container_width=True)
+
+
+            st.subheader("Évolution des prix (en €) par Année")
+            df_evol = df_filtre.groupby(['Year', 'Brand'])['Price'].mean().reset_index()
+            fig_line = px.line(df_evol, x="Year", y="Price", color="Brand", markers=True)
+            st.plotly_chart(fig_line, use_container_width=True)
+
+        except FileNotFoundError:
+            st.error("Le fichier 'data\\train_clean.csv' est introuvable.")
