@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="Prédiction prix de voitures")
 
-@app.post("/prediction", tags=["Prédicteur"], summary="Prédiction de prix de voitures d'occasion à partir des informations renseignées")
+@app.post("/prediction", tags=["Modèle de prédiction de prix"], summary="Prédiction de prix de voitures d'occasion à partir des informations renseignées")
 async def predict(data: Annotated[CarData, Depends()]):
     if app.state.model is None:
         return {"error": "Modèle non chargé"}

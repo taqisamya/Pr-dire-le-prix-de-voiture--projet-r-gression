@@ -87,8 +87,9 @@ if not st.session_state.logged_in:
                 st.session_state.show_login = True
                 st.rerun()
         
-        st.divider()
+        # st.divider()
         st.info("Connectez-vous pour accéder aux prédictions IA et aux statistiques du marché.")
+        
     else:
         # --- PAGE DE LOGIN ---
         choice = st.radio("Actions", ["Se connecter", "Créer un compte"], horizontal=True)
