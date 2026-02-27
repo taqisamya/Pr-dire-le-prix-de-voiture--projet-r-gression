@@ -79,7 +79,11 @@ if not st.session_state.logged_in:
         # --- PAGE D'ACCUEIL ---
         st.title("🚗 Bienvenue chez MMS Occasions")
         st.image('background.png')
-        st.write("<div style='text-align: center'>L'outil expert pour estimer la valeur de votre véhicule d'occasion en quelques secondes.</div>", unsafe_allow_html=True)
+        st.write("<div style='text-align: center'>L'outil expert pour estimer la valeur de votre véhicule d'occasion en quelques secondes :</div>", unsafe_allow_html=True)
+        st.write("<div style='text-align: center'>Connectez-vous,</div>", unsafe_allow_html=True)
+        st.write("<div style='text-align: center'>renseignez les caractéristiques d'un véhicule,</div>", unsafe_allow_html=True)
+        st.write("<div style='text-align: center'>et lancez la prédiction ! </div>", unsafe_allow_html=True)
+
         st.markdown("\n\n")
         col1, col2, col3, col4, col5 = st.columns(5)
         with col3:
