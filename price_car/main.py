@@ -1,38 +1,41 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 import joblib
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Annotated
 
 class CarData(BaseModel):
-    Location: str
-    Year: int
-    Kilometers_Driven: float
-    Fuel_Type: str
-    Transmission: str
-    Owner_Type: str
-    Mileage: float
-    Power: float
-    Model: str
-    Brand: str
+    Location: str = Field(..., description="Ville", examples=["Mumbai"])
+    Year: int = Field(..., description="Année", examples=[2010])
+    Kilometers_Driven: int = Field(..., description="KM parcourus", examples=[10000])
+    Fuel_Type: str = Field(..., description="Carburant", examples=["Diesel"])
+    Transmission: str = Field(..., description="Boîte", examples=["Manual"])
+    Owner_Type: str = Field(..., description="Main", examples=["First"])
+    Mileage: float = Field(..., description="Consommation", examples=[20.0])
+    Power: float = Field(..., description="Puissance bhp", examples=[50.0])
+    Model: str = Field(..., description="Modèle", examples=["1000 AC"])
+    Brand: str = Field(..., description="Marque", examples=["MARUTI"])
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Chargement sécurisé
     path = Path("models/modele_svr.pkl")
     if path.exists():
         app.state.model = joblib.load(path)
-        print("✅ Modèle SVR chargé avec succès.")
+        print("✅ Modèle SVR chargé.")
     else:
-        print("❌ ERREUR : Fichier modèle introuvable !")
+        app.state.model = None
+        print("❌ Modèle introuvable.")
     yield
-    app.state.model = None
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="Prédiction prix de voitures")
 
-@app.post("/predict")
-async def predict(data: CarData):
-    df = pd.DataFrame([data.model_dump()]) # model_dump remplace dict() en 2026
+@app.post("/prediction", tags=["Prédicteur"], summary="Prédiction de prix de voitures d'occasion à partir des informations renseignées")
+async def predict(data: Annotated[CarData, Depends()]):
+    if app.state.model is None:
+        return {"error": "Modèle non chargé"}
+        
+    df = pd.DataFrame([data.model_dump()])
     prediction = app.state.model.predict(df)[0]
     return {"predicted_price": float(prediction)}

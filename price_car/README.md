@@ -10,15 +10,34 @@ si le projet est récupérer depuis GitHub, il est nécessaire:
 Windows:venv\Scripts\activate
 linux/Mac: source venv/bin/activate 
 
-3. installer les bibliothèques: pip install pandas scikit-learn matplotlib joblib streamlit fastapi uvicorn plotly 
+3. installer les bibliothèques: pip install pandas scikit-learn matplotlib joblib streamlit fastapi uvicorn plotly xgboost
 
 4. pour le lancement de l'application, elle utilise une architecture API + utilisateur, donc il faut lancer deux terminaux: 
 
 -lancer FastAPI : uvicorn main:app --reload
--lancer Streamlit: streamlit run app_streamlit.py
+-lancer Streamlit: streamlit run app.py
 
 l'interface s'ouvrira automatiquement dans votre navigateur, accueilli par une page d'accueil avec un bouton de login , après  la connexion on passe directement au coeur de l'application avec deux onglets estimer le prix et statistiques. 
 
+
+La structure du code: 
+PRICE_CAR/
+│
+├── README.md                 # Documentation du projet
+├── data/                     # Données brutes
+│   └── train_clean.csv       # Dataset principal
+│
+├── exp_data/                 # Données expérimentales ou intermédiaires
+│   └── ...                   # Fichiers générés pour tests ou preprocessing
+│
+├── models/                   # Modèles entraînés
+│   └── modele_svr.pkl        # Modèle SVR sauvegardé pour l’API
+│
+├── app.py                     # Application Streamlit pour l’interface utilisateur
+├── main.py                    # API FastAPI pour la prédiction via le modèle
+---users.db                    # base de données des utilisateurs         
+│
+└── requirements.txt           # Dépendances Python du projet
 
 
 
